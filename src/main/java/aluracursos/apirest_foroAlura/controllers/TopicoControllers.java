@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.awt.print.Pageable;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,53 +27,55 @@ public class TopicoControllers {
 
     @PostMapping
     @Transactional
-    public  void registrarTopico(@RequestBody @Valid DatosRegistroTopico datosRegistroTopico){
-        topicoRepository.save(new Topico(datosRegistroTopico));
+    public  ResponseEntity<DatosRespuestaTopico> registrarTopico(@RequestBody @Valid DatosRegistroTopico datosRegistroTopico,
+                                                                 UriComponentsBuilder uriComponentsBuilder){
+        Topico topico = topicoRepository.save(new Topico(datosRegistroTopico));
+        DatosRespuestaTopico datosRespuestaTopico = new DatosRespuestaTopico(topico.getId(), topico.getTitulo(),
+                topico.getMensaje(), topico.getFechaDeCreacion(), topico.getCurso());
+        URI url = uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+        return ResponseEntity.created(url).body(datosRespuestaTopico);
     }
 
     @GetMapping
-    public Page<DatosListadoTopico> listadoTopicos(
+    public ResponseEntity<Page<DatosListadoTopico>> listadoTopicos(
             @RequestParam(required = false) String curso,
             @PageableDefault(size = 10, sort = "fechaDeCreacion", direction = Sort.Direction.ASC)
             org.springframework.data.domain.Pageable paginacion) {
 
         if (curso != null) {
             // Filtra por curso y ordena por fecha
-            return topicoRepository.findByCursoOrderByFechaDeCreacionAsc(curso, paginacion)
-                    .map(DatosListadoTopico::new);
+            return ResponseEntity.ok(topicoRepository.findByCursoOrderByFechaDeCreacionAsc(curso, paginacion)
+                    .map(DatosListadoTopico::new));
         }
-       /* if (!cursoRepository.existsByNombre(curso)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El curso no existe");
-        }*/
-
 
         // Si no hay filtro, muestra todos los tópicos ordenados por fecha
-        return topicoRepository.findAll(paginacion).map(DatosListadoTopico::new);
+        return ResponseEntity.ok(topicoRepository.findAll(paginacion).map(DatosListadoTopico::new));
     }
 
     @GetMapping("/{id}")
-    public DatosListadoTopico buscarTopicoPorId(@PathVariable Long id) {
+    public ResponseEntity<DatosRespuestaTopico> retornarTopicoPorId(@PathVariable Long id) {
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tópico no encontrado con el ID: " + id));
-        return new DatosListadoTopico(topico);
+        var datosTopico = new DatosRespuestaTopico(topico.getId(), topico.getTitulo(),
+                topico.getMensaje(), topico.getFechaDeCreacion(), topico.getCurso());
+        return  ResponseEntity.ok(datosTopico);
     }
 
     @PutMapping
     @Transactional
-    public void  actualizarTopico(@RequestBody @Valid DatosActualizarTopico datosActualizarTopico) {
-        // Verificar si el tópico existe en la base de datos
-        /*if (!topicoRepository.findById(id).isPresent()) {
-            throw new RuntimeException("Tópico no encontrado con el ID: " + id);
-        }*/
+    public ResponseEntity  actualizarTopico(@RequestBody @Valid DatosActualizarTopico datosActualizarTopico) {
         Topico topico = topicoRepository.getReferenceById(datosActualizarTopico.id());
         topico.actualizarTopico(datosActualizarTopico);
+        return ResponseEntity.ok(new DatosRespuestaTopico(topico.getId(), topico.getTitulo(),
+                topico.getMensaje(), topico.getFechaDeCreacion(), topico.getCurso()));
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public void eliminarMedico(@PathVariable Long id) {
+    public ResponseEntity eliminarTopico(@PathVariable Long id) {
       Topico topico = topicoRepository.getReferenceById(id);
       topicoRepository.delete(topico);
+      return ResponseEntity.noContent().build();
   }
 }
 
@@ -78,10 +83,6 @@ public class TopicoControllers {
 
 
 
-   /* @GetMapping
-    public Page<DatosListadoTopico> listadoTopicos(@PageableDefault(size = 10, sort = "fechaDeCreacion" "curso", direction = Sort.Direction.ASC) org.springframework.data.domain.Pageable paginacion) {
-             return topicoRepository.findAll(paginacion).map(DatosListadoTopico::new);
-    }*/
 
 
 
