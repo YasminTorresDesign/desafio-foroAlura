@@ -1,6 +1,8 @@
 package aluracursos.apirest_foroAlura.controllers;
 
 import aluracursos.apirest_foroAlura.domain.usuario.DatosAutenticacionUsuario;
+import aluracursos.apirest_foroAlura.domain.usuario.Usuario;
+import aluracursos.apirest_foroAlura.infra.errores.security.DatosJWTToken;
 import aluracursos.apirest_foroAlura.infra.errores.security.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,9 @@ public class AutenticacionController {
     public ResponseEntity autenticarUsuario(@RequestBody @Valid DatosAutenticacionUsuario datosAutenticacionUsuario) {
         Authentication authToken = new UsernamePasswordAuthenticationToken(datosAutenticacionUsuario.email(),
                 datosAutenticacionUsuario.clave());
-       authenticationManager.authenticate(authToken);
-        //var usuarioAutenticado = authenticationManager.authenticate(authToken);
-        var JWTtoken = tokenService.generarToken();
-        //var JWTtoken = tokenService.generarToken((Usuario) usuarioAutenticado.getPrincipal());
-        return ResponseEntity.ok(JWTtoken
-        );
+        var usuarioAutenticado = authenticationManager.authenticate(authToken);
+        var JWTtoken = tokenService.generarToken((Usuario) usuarioAutenticado.getPrincipal());
+        return ResponseEntity.ok(new DatosJWTToken(JWTtoken));
     }
 
 }
