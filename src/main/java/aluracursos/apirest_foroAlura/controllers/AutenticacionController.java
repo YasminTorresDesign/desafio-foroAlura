@@ -2,8 +2,8 @@ package aluracursos.apirest_foroAlura.controllers;
 
 import aluracursos.apirest_foroAlura.domain.usuario.DatosAutenticacionUsuario;
 import aluracursos.apirest_foroAlura.domain.usuario.Usuario;
-import aluracursos.apirest_foroAlura.infra.errores.security.DatosJWTToken;
-import aluracursos.apirest_foroAlura.infra.errores.security.TokenService;
+import aluracursos.apirest_foroAlura.infra.security.DatosJWTToken;
+import aluracursos.apirest_foroAlura.infra.security.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

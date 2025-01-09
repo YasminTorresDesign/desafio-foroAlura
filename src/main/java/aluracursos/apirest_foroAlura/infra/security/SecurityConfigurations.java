@@ -1,4 +1,4 @@
-package aluracursos.apirest_foroAlura.infra.errores.security;
+package aluracursos.apirest_foroAlura.infra.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +17,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfigurations {
-    //@Autowired
-    //private SecurityFilter securityFilter;
+    @Autowired
+    private SecurityFilter securityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf().disable().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Le indiamos a Spring el tipo de sesion
-                .and().build();
+                .and().authorizeRequests()
+                .requestMatchers(HttpMethod.POST, "/login")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean

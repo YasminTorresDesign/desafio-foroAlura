@@ -1,4 +1,4 @@
-package aluracursos.apirest_foroAlura.infra.errores.security;
+package aluracursos.apirest_foroAlura.infra.security;
 
 import aluracursos.apirest_foroAlura.domain.usuario.Usuario;
 import com.auth0.jwt.JWT;
@@ -34,7 +34,7 @@ public class TokenService {
         }
     }
 
-    /*public String getSubject(String token) {
+    public String getSubject(String token) {
         if (token == null) {
             throw new RuntimeException();
         }
@@ -53,10 +53,10 @@ public class TokenService {
             throw new RuntimeException("Verifier invalido");
         }
         return verifier.getSubject();
-    }*/
+    }
 
     private Instant generarFechaExpiracion() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-05:00"));
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 
 }

@@ -1,4 +1,4 @@
-package aluracursos.apirest_foroAlura.infra.errores.security;
+package aluracursos.apirest_foroAlura.infra.security;
 
 import aluracursos.apirest_foroAlura.domain.usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
